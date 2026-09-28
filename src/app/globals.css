@@ -1,0 +1,479 @@
+@import "tailwindcss";
+
+/* ============================================================
+   ONE TAP — Direction A: Full Field
+
+   RAMPS
+     space  4 8 12 16 24 32 48 96
+     type   11 13 16 19 24 32 44 64 86
+     track  -0.04em / -0.01em / 0.08em / 0.18em   (four, total)
+     gutter one screen gutter: 28px, everywhere
+
+   COLOUR (WCAG relative luminance, computed — not eyeballed)
+     forest #021711  vs  clay #85472D          = 2.59:1
+       protanopia simulated                    = 2.24:1
+       deuteranopia simulated                  = 2.82:1
+     bone on forest 15.23:1 · bone on clay 5.88:1
+
+   Value alone is not enough at 2.59:1, so state is also carried by
+   the WATERLINE: a break-even rule at a fixed height with the figure
+   above it or below it. That cue survives glare, greyscale and every
+   form of colour blindness, and needs no word read to work.
+   ============================================================ */
+
+:root {
+  --ink: #0e1213;
+  --forest: #021711;
+  --clay: #85472d;
+  --bone: #efe8dd;
+  --ochre: #8f5e10; /* 4.57:1 on bone */
+
+  --f-display: ui-sans-serif, system-ui, -apple-system, "Segoe UI Variable Display",
+    "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --f-body: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial,
+    sans-serif;
+  --f-data: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Roboto Mono",
+    monospace;
+
+  --s1: 4px;
+  --s2: 8px;
+  --s3: 12px;
+  --s4: 16px;
+  --s5: 24px;
+  --s6: 32px;
+  --s7: 48px;
+  --s9: 96px;
+
+  --t1: 11px;
+  --t2: 13px;
+  --t3: 16px;
+  --t4: 19px;
+  --t5: 24px;
+  --t6: 32px;
+  --t7: 44px;
+  --t8: 64px;
+  --t9: 86px;
+
+  --tr-display: -0.04em;
+  --tr-body: -0.01em;
+  --tr-caps: 0.08em;
+  --tr-wide: 0.18em;
+
+  --gutter: 28px;
+  --touch: 64px;
+
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--ink);
+  color: var(--bone);
+  font-family: var(--f-body);
+  -webkit-font-smoothing: antialiased;
+  overscroll-behavior: none;
+}
+
+:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* ---------- the screen shell ---------- */
+
+.screen {
+  position: relative;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  padding-top: var(--safe-top);
+  padding-bottom: var(--safe-bottom);
+  overflow: hidden;
+}
+
+/* per-state tokens: an alpha tuned on green measures ~10% worse on red,
+   so the label and value colours are set PER STATE as solid hexes */
+.screen--field {
+  --field: var(--forest);
+  --label: #95998f; /* 6.38:1 on forest */
+  --value: #c0beb4; /* 9.94:1 on forest */
+  --wash: rgba(239, 232, 221, 0.12);
+  background:
+    radial-gradient(
+      118% 76% at 6% -4%,
+      rgba(255, 255, 255, 0.055),
+      rgba(255, 255, 255, 0) 62%
+    ),
+    var(--field);
+}
+
+.screen--red {
+  --field: var(--clay);
+  --label: #e4d8cb; /* 5.10:1 on clay */
+  --value: #efe8dd; /* 5.88:1 on clay */
+}
+
+.screen--ink {
+  background: var(--ink);
+}
+
+.field {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  padding: var(--s7) var(--gutter) var(--s7);
+}
+
+.spacer {
+  flex: 1 1 auto;
+}
+
+/* ---------- the money screen ---------- */
+
+.month {
+  margin: 0;
+  font-family: var(--f-data);
+  font-size: var(--t1);
+  font-weight: 700;
+  letter-spacing: var(--tr-wide);
+  text-transform: uppercase;
+  color: var(--label);
+}
+
+/* THE WATERLINE.
+   Fixed height, so the rule lands at the same y in both states.
+   Figure above the rule = in the black. Below = in the red. */
+.gauge {
+  margin-top: var(--s5);
+  flex: 0 0 auto;
+  height: 296px;
+  display: flex;
+  flex-direction: column;
+}
+
+.zone {
+  flex: 1 1 0;
+  min-height: 0;
+  display: flex;
+}
+
+.zone--up {
+  align-items: flex-end;
+}
+
+.zone--down {
+  align-items: flex-start;
+}
+
+.waterline {
+  flex: 0 0 auto;
+  height: 2px;
+  /* full-bleed: escapes the gutter to touch both screen edges */
+  margin: 0 calc(var(--gutter) * -1);
+  background: var(--bone);
+  opacity: 0.85;
+}
+
+.hero {
+  margin: 0;
+  font-family: var(--f-display);
+  /* 86px on a 390px phone, and it shrinks rather than clipping on a
+     narrower one or behind a wide fallback face */
+  font-size: clamp(52px, 22vw, var(--t9));
+  font-weight: 900;
+  letter-spacing: -0.055em;
+  line-height: 0.92;
+  font-variant-numeric: tabular-nums;
+  color: var(--bone);
+  white-space: nowrap;
+}
+
+.refs {
+  margin: var(--s6) 0 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--s5);
+}
+
+.ref dt {
+  font-family: var(--f-data);
+  font-size: var(--t1);
+  font-weight: 600;
+  letter-spacing: var(--tr-wide);
+  text-transform: uppercase;
+  color: var(--label);
+}
+
+.ref dd {
+  margin: var(--s2) 0 0;
+  font-family: var(--f-data);
+  font-size: var(--t3);
+  font-weight: 500;
+  letter-spacing: var(--tr-body);
+  font-variant-numeric: tabular-nums;
+  color: var(--value);
+}
+
+/* ---------- buttons ---------- */
+
+.btn {
+  appearance: none;
+  border: 0;
+  cursor: pointer;
+  font-family: var(--f-display);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s3);
+  width: 100%;
+  height: var(--touch);
+  border-radius: 999px;
+  background: var(--bone);
+  color: var(--ink);
+  font-size: var(--t4);
+  font-weight: 800;
+  letter-spacing: var(--tr-body);
+  transition:
+    transform 140ms ease,
+    filter 140ms ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.btn:active {
+  transform: translateY(1px) scale(0.994);
+}
+
+.btn:disabled {
+  cursor: default;
+  opacity: 0.75;
+}
+
+/* A solid slab carried ~4x the bright mass of the figure and stole first
+   fixation. A 12% wash plus a 2px edge keeps the target and the affordance
+   but hands the eye back to the number. */
+.btn--field {
+  background: var(--wash);
+  box-shadow: inset 0 0 0 2px var(--bone);
+  color: var(--bone);
+}
+
+.btn--confirm {
+  background: var(--forest);
+  color: var(--bone); /* 15.23:1 */
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- login ---------- */
+
+.login {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  padding: var(--s7) var(--gutter) var(--s7);
+}
+
+.login .lead {
+  flex: 0 0 34%;
+}
+
+.wordmark {
+  margin: 0;
+  font-family: var(--f-display);
+  font-size: var(--t8);
+  font-weight: 900;
+  letter-spacing: -0.05em;
+  line-height: 0.9;
+  color: var(--bone);
+}
+
+.tagline {
+  margin: var(--s4) 0 0;
+  font-size: var(--t4);
+  font-weight: 500;
+  letter-spacing: var(--tr-body);
+  color: #b0aca4; /* 8.33:1 on ink */
+}
+
+.fineprint {
+  margin: var(--s4) 0 0;
+  font-family: var(--f-data);
+  font-size: var(--t1);
+  letter-spacing: var(--tr-caps);
+  text-transform: uppercase;
+  color: #908e88; /* 5.75:1 on ink */
+  text-align: center;
+}
+
+.login-error {
+  margin: var(--s4) 0 0;
+  font-size: var(--t2);
+  line-height: 1.45;
+  color: #f0b8a6;
+  text-align: center;
+}
+
+/* ---------- the Job done sheet ---------- */
+
+.scrim {
+  position: fixed;
+  inset: 0;
+  background: rgba(2, 12, 9, 0.62);
+  z-index: 2;
+  border: 0;
+  padding: 0;
+  width: 100%;
+  animation: fade 220ms ease both;
+}
+
+.sheet {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 4;
+  background: var(--bone);
+  border-radius: var(--s6) var(--s6) 0 0;
+  padding: var(--s3) var(--gutter) calc(var(--s7) + var(--safe-bottom));
+  color: var(--ink);
+  box-shadow: 0 -26px 60px rgba(4, 10, 9, 0.5);
+  animation: rise 420ms cubic-bezier(0.19, 0.9, 0.22, 1) both;
+  max-height: 92dvh;
+  overflow-y: auto;
+}
+
+@keyframes rise {
+  from {
+    transform: translateY(24px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.grab {
+  width: var(--s7);
+  height: 5px;
+  border-radius: 3px;
+  background: rgba(14, 18, 19, 0.24);
+  margin: 0 auto var(--s5);
+}
+
+.sheet h2 {
+  margin: 0;
+  font-family: var(--f-display);
+  font-size: var(--t5);
+  font-weight: 900;
+  letter-spacing: var(--tr-display);
+}
+
+.row {
+  padding: var(--s3) 0;
+  border-bottom: 1px solid rgba(14, 18, 19, 0.14);
+}
+
+.row:focus-within {
+  border-bottom-color: var(--ochre);
+}
+
+.lab {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--s2);
+  margin: 0;
+  font-family: var(--f-data);
+  font-size: var(--t1);
+  font-weight: 600;
+  letter-spacing: var(--tr-wide);
+  text-transform: uppercase;
+  color: #565654; /* 6.04:1 on bone */
+}
+
+.opt {
+  font-family: var(--f-data);
+  font-size: var(--t1);
+  font-weight: 700;
+  letter-spacing: var(--tr-caps);
+  text-transform: uppercase;
+  color: var(--ochre); /* 4.57:1 on bone */
+}
+
+.val {
+  appearance: none;
+  width: 100%;
+  margin: var(--s2) 0 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font-family: var(--f-body);
+  font-size: var(--t3);
+  font-weight: 600;
+  letter-spacing: var(--tr-body);
+  color: var(--ink);
+}
+
+.val::placeholder {
+  color: rgba(14, 18, 19, 0.38);
+}
+
+.val:focus {
+  outline: none;
+}
+
+.val--money {
+  font-family: var(--f-display);
+  font-size: var(--t7);
+  font-weight: 900;
+  letter-spacing: var(--tr-display);
+  font-variant-numeric: tabular-nums;
+}
+
+.val--cost {
+  font-size: var(--t5);
+}
+
+.sheet-actions {
+  margin-top: var(--s5);
+}
+
+.sheet-error {
+  margin: var(--s3) 0 0;
+  font-size: var(--t2);
+  line-height: 1.4;
+  color: #8e2f24; /* 7.41:1 on bone */
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sheet,
+  .scrim {
+    animation: none;
+  }
+  .btn {
+    transition: none;
+  }
+  .btn:active {
+    transform: none;
+  }
+}
